@@ -1,0 +1,1567 @@
+​Docker Architecture: Beginner to Advanced
+
+*********************Arch************************
+                    Docker Registry
+                      (Docker Hub)
+                            ▲
+                            │
+                      Pull / Push
+                            │
+
++------------------------------------------------+
+|                Docker Host                     |
+|                                                |
+|  +---------------------------+                 |
+|  | Docker CLI                |                 |
+|  +-------------+-------------+                 |
+|                | API Calls                     |
+|                v                               |
+|  +---------------------------+                 |
+|  | Docker Daemon (dockerd)   |                 |
+|  +-------------+-------------+                 |
+|                |                               |
+|        +-------+---------+                     |
+|        |                 |                     |
+|        v                 v                     |
+|    Images            Networks                 |
+|    Volumes           Containers               |
+|                          |                    |
+|                          v                    |
+|                    containerd                 |
+|                          |                    |
+|                          v                    |
+|                         runc                  |
+|                          |                    |
+|                          v                    |
+|                    Linux Kernel               |
+|                          |                    |
+|                          v                    |
+|                     Containers                |
++------------------------------------------------+
+
+Dockerfile
+    ↓
+Build
+    ↓
+Image
+    ↓
+Push (Registry)
+    ↓
+Pull (Registry)
+    ↓
+Create Container
+    ↓
+Docker Daemon
+    ↓
+containerd
+    ↓
+runc
+    ↓
+Linux Kernel (Namespaces + cgroups)
+    ↓
+Running Container
+    ↓
+Network + Volumes
+    ↓
+Application Execution
+
+requested format along with example # example docker build -t # what is the meaning of -t
+Docker Client     → Sends Docker commands  
+Docker Daemon     → Manages Docker operations
+Dockerfile        → Defines image creation steps # example docker build -t # what is the meaning of -t
+Build             → Creates image from Dockerfile
+Image             → Read-only application package
+Registry          → Stores Docker images
+Docker Hub        → Default public registry
+Container         → Running instance of image
+containerd        → Manages container lifecycle
+runc              → Creates actual containers
+Namespaces        → Isolation mechanism
+cgroups           → Resource limitation mechanism
+Network           → Enables communication
+Volume            → Provides persistent storage
+Linux Kernel      → Foundation of containerization
+
+
+DOCKER ARCHITECTURE
+
+Docker Client        → Sends Docker commands.
+Docker Daemon        → Executes and manages Docker operations.
+Dockerfile           → File containing image build instructions.
+Build                → Creates Docker Image from Dockerfile.
+Image                → Read-only application package.
+Registry             → Stores Docker Images.
+Docker Hub           → Default public Docker Registry.
+Container            → Running instance of an Image.
+containerd           → Manages container lifecycle.
+runc                 → Creates and runs containers.
+Namespaces           → Provides isolation between containers.
+cgroups              → Controls CPU, Memory and Resources.
+Network              → Enables container communication.
+Volume               → Provides persistent storage.
+Linux Kernel         → Core technology behind containers.
+
+
+DOCKERFILE COMMANDS
+
+FROM                 → Defines base image.
+RUN                  → Executes commands during build.
+COPY                 → Copies files into image.
+ADD                  → Copies files and extracts archives.
+WORKDIR              → Sets working directory.
+ENV                  → Sets environment variables.
+ARG                  → Sets build-time variables.
+EXPOSE               → Documents application port.
+VOLUME               → Creates persistent storage path.
+LABEL                → Adds metadata.
+USER                 → Runs container as specific user.
+CMD                  → Default startup command.
+ENTRYPOINT           → Fixed startup command.
+HEALTHCHECK          → Monitors container health.
+ONBUILD              → Runs when image is used as base image.
+
+
+IMAGE COMMANDS
+
+docker build         → Build image from Dockerfile.
+docker images        → List local images.
+docker image ls      → List available images.
+docker pull          → Download image from Registry.
+docker push          → Upload image to Registry.
+docker tag           → Create new tag/version for image.
+docker rmi           → Remove image.
+docker inspect image → View image details.
+docker history       → View image layers.
+docker save          → Export image to file.
+docker load          → Import image from file.
+
+
+CONTAINER COMMANDS
+
+docker create        → Create container only.
+docker run           → Create and start container.
+docker start         → Start stopped container.
+docker stop          → Gracefully stop container.
+docker kill          → Forcefully stop container.
+docker restart       → Restart container.
+docker pause         → Pause container processes.
+docker unpause       → Resume paused container.
+docker wait          → Wait until container exits.
+docker rename        → Rename container.
+docker rm            → Remove container.
+docker rm -f         → Force remove running container.
+
+
+COMMON docker run OPTIONS
+
+-d                   → Run container in background.
+-i                   → Interactive mode.
+-t                   → Terminal mode (TTY).
+-it                  → Interactive terminal.
+--name               → Assign container name.
+--rm                 → Auto-delete after exit.
+-p                   → Map host port to container port.
+-P                   → Auto-map exposed ports.
+-e                   → Pass environment variable.
+--env-file           → Read variables from file.
+-v                   → Mount volume/folder.
+--network            → Connect to network.
+--memory             → Limit memory usage.
+--cpus               → Limit CPU usage.
+--hostname           → Set hostname.
+--restart            → Configure restart policy.
+--user               → Run as specific user.
+--privileged         → Give elevated permissions.
+--read-only          → Read-only filesystem.
+--entrypoint         → Override entrypoint.
+-w                   → Set working directory.
+--dns                → Set custom DNS.
+--pids-limit         → Limit number of processes.
+
+
+MONITORING COMMANDS
+
+docker ps            → Show running containers.
+docker ps -a         → Show all containers.
+docker logs          → View container logs.
+docker logs -f       → Follow logs continuously.
+docker inspect       → View complete configuration.
+docker top           → View running processes.
+docker stats         → View CPU and Memory usage.
+docker diff          → View filesystem changes.
+docker port          → View port mapping.
+docker events        → View Docker events.
+docker attach        → Connect terminal to container.
+docker exec          → Run command inside container.
+docker exec -it      → Open shell inside container.
+docker cp            → Copy files to/from container.
+docker export        → Export container filesystem.
+
+
+VOLUME COMMANDS
+
+docker volume create → Create volume.
+docker volume ls     → List volumes.
+docker volume inspect→ View volume details.
+docker volume rm     → Delete volume.
+docker volume prune  → Delete unused volumes.
+
+
+NETWORK COMMANDS
+
+docker network ls        → List networks.
+docker network create    → Create network.
+docker network inspect   → View network details.
+docker network connect   → Connect container to network.
+docker network disconnect→ Disconnect container from network.
+docker network rm        → Delete network.
+docker network prune     → Delete unused networks.
+
+
+REGISTRY COMMANDS
+
+docker login         → Login to Registry.
+docker logout        → Logout from Registry.
+docker search        → Search images.
+docker pull          → Download image.
+docker push          → Upload image.
+
+
+SYSTEM COMMANDS
+
+docker version       → Show Docker version.
+docker info          → Show Docker details.
+docker system df     → Show disk usage.
+docker system prune  → Clean unused resources.
+docker builder prune → Clean build cache.
+docker image prune   → Clean unused images.
+docker volume prune  → Clean unused volumes.
+docker network prune → Clean unused networks.
+docker container prune→ Clean stopped containers.
+
+
+DOCKER COMPOSE COMMANDS
+
+docker compose up       → Create and start services.
+docker compose up -d    → Start services in background.
+docker compose down     → Stop and remove services.
+docker compose start    → Start services.
+docker compose stop     → Stop services.
+docker compose restart  → Restart services.
+docker compose ps       → List service containers.
+docker compose logs     → View logs.
+docker compose exec     → Run command inside service.
+docker compose build    → Build service images.
+docker compose pull     → Download service images.
+docker compose config   → Validate compose file.
+
+
+MOST USED INTERVIEW COMMANDS
+
+docker build        → Build image
+docker pull         → Download image
+docker push         → Upload image
+docker images       → List images
+docker run          → Create + Start container
+docker create       → Create container only
+docker start        → Start container
+docker stop         → Stop container
+docker restart      → Restart container
+docker kill         → Force stop container
+docker ps           → Running containers
+docker ps -a        → All containers
+docker logs         → View logs
+docker exec -it     → Open shell inside container
+docker inspect      → View detailed configuration
+docker top          → View processes
+docker stats        → View resource usage
+docker cp           → Copy files
+docker rm           → Remove container
+docker rmi          → Remove image
+docker volume ls    → List volumes
+docker network ls   → List networks
+docker system prune → Clean unused resources
+docker compose up   → Start application stack
+docker compose down → Stop application stack
+
+
+
+Docker Architecture Components
+
+Docker Client
+→ Sends Docker commands to Docker Daemon.
+Example: docker run nginx
+
+Docker Daemon (dockerd)
+→ Core Docker service that manages images, containers, networks, and volumes.
+Example: Receives requests from Docker Client and executes them.
+
+Dockerfile
+→ Blueprint used to create Docker images.
+Example:
+FROM nginx
+COPY . /usr/share/nginx/html
+
+Build
+→ Converts Dockerfile into Docker Image.
+Example:
+docker build -t myapp:v1 .
+
+-t = tag (assigns image name and version)
+myapp = image name
+v1 = image version
+. = current directory containing Dockerfile
+
+Image
+→ Read-only application package containing code, libraries, runtime, dependencies.
+Example:
+docker images
+
+Registry
+→ Storage location for Docker images.
+Example:
+Docker Hub, ACR, ECR, Harbor
+
+Docker Hub
+→ Default public Docker registry.
+Example:
+docker pull nginx
+
+Container
+→ Running instance of an image.
+Example:
+docker run nginx
+
+containerd
+→ Handles container lifecycle operations.
+Example:
+Create, start, stop, delete containers.
+
+runc
+→ Low-level runtime responsible for actually creating containers.
+
+Namespaces
+→ Provides isolation between containers.
+Examples:
+PID Namespace
+Network Namespace
+Mount Namespace
+UTS Namespace
+IPC Namespace
+
+cgroups
+→ Controls resource limits.
+Examples:
+CPU Limit
+Memory Limit
+Process Limit
+
+Network
+→ Allows communication between containers and external systems.
+Examples:
+Bridge
+Host
+Overlay
+Macvlan
+
+Volume
+→ Persistent storage independent of container lifecycle.
+Example:
+docker volume create myvol
+
+Linux Kernel
+→ Provides namespaces, cgroups, networking and filesystem support for containers.
+
+***Dockerfile Instructions
+FROM
+→ Defines base image.
+Example:
+FROM ubuntu:22.04
+
+RUN
+→ Executes commands during build.
+Example:
+RUN apt-get update
+
+COPY
+→ Copies files from host to image.
+Example:
+COPY app.py /app/
+
+ADD
+→ Copies files and extracts archives automatically.
+Example:
+ADD app.tar.gz /app/
+
+WORKDIR
+→ Sets working directory.
+Example:
+WORKDIR /app
+
+ENV
+→ Sets environment variables.
+Example:
+ENV APP_ENV=PROD
+
+ARG
+→ Build-time variable.
+Example:
+ARG VERSION=1.0
+
+EXPOSE
+→ Documents application port.
+Example:
+EXPOSE 8080
+
+VOLUME
+→ Creates persistent storage location.
+Example:
+VOLUME /data
+
+LABEL
+→ Adds metadata.
+Example:
+LABEL author="Rajesh"
+
+USER
+→ Runs container as specific user.
+Example:
+USER appuser
+
+CMD
+→ Default startup command.
+Example:
+CMD ["python","app.py"]
+
+ENTRYPOINT
+→ Fixed executable command.
+Example:
+ENTRYPOINT ["python"]
+
+HEALTHCHECK
+→ Monitors container health.
+Example:
+HEALTHCHECK CMD curl -f http://localhost
+
+ONBUILD
+→ Executes when image is used as a parent image.
+
+
+*** Image Commands
+
+docker build
+→ Build image from Dockerfile.
+Example:
+docker build -t app:v1 .
+
+docker images
+→ List all images.
+
+docker image ls
+→ List images (alternate syntax).
+
+docker pull nginx
+→ Download image from registry.
+
+docker push myrepo/app:v1
+→ Upload image to registry.
+
+docker tag app:v1 app:v2
+→ Create new image tag.
+
+docker rmi app:v1
+→ Delete image.
+
+docker image inspect nginx
+→ View image metadata.
+
+docker history nginx
+→ Show image layers.
+
+docker save nginx -o nginx.tar
+→ Export image.
+
+docker load -i nginx.tar
+→ Import image.
+
+docker image prune
+→ Remove unused images.
+
+
+****Container Lifecycle Commands
+
+docker create nginx
+→ Create container only.
+
+docker run nginx
+→ Create + Start container.
+
+docker start container1
+→ Start stopped container.
+
+docker stop container1
+→ Graceful shutdown.
+
+docker restart container1
+→ Restart container.
+
+docker kill container1
+→ Force stop using SIGKILL.
+
+docker pause container1
+→ Freeze processes.
+
+docker unpause container1
+→ Resume processes.
+
+docker wait container1
+→ Wait until container exits.
+
+docker rm container1
+→ Delete container.
+
+docker rm -f container1
+→ Force remove running container.
+
+docker rename old new
+→ Rename container.
+
+*** docker run advanced
+docker run -d nginx
+→ Run in detached mode (background).
+
+-d = detached mode
+
+docker run -it ubuntu bash
+→ Interactive terminal.
+
+-i = interactive
+-t = terminal (TTY)
+
+docker run --name web nginx
+→ Assign custom name.
+
+docker run --rm ubuntu
+→ Auto remove after exit.
+
+docker run -p 8080:80 nginx
+→ Port mapping.
+
+Host Port : Container Port
+
+8080 = Host machine port
+80 = Container port
+
+docker run -P nginx
+→ Automatically map exposed ports.
+
+docker run -e ENV=DEV nginx
+→ Set environment variable.
+
+docker run --env-file app.env nginx
+→ Load variables from file.
+
+docker run -v myvol:/data nginx
+→ Attach Docker volume.
+
+docker run -v /host:/container nginx
+→ Bind mount host directory.
+
+docker run --network mynet nginx
+→ Attach to network.
+
+docker run --memory=512m nginx
+→ Restrict memory.
+
+docker run --cpus=2 nginx
+→ Restrict CPU.
+
+docker run --hostname app01 nginx
+→ Custom hostname.
+
+docker run --restart always nginx
+→ Auto restart.
+
+docker run --user 1000 nginx
+→ Run as user ID 1000.
+
+docker run --privileged nginx
+→ Elevated container permissions.
+
+docker run --read-only nginx
+→ Read-only filesystem.
+
+docker run --entrypoint bash ubuntu
+→ Override ENTRYPOINT.
+
+docker run -w /app nginx
+→ Set working directory.
+
+docker run --dns 8.8.8.8 nginx
+→ Custom DNS server.
+
+docker run --pids-limit=100 nginx
+→ Maximum 100 processes.
+
+**Monitoring & Troubleshooting Commands
+docker ps
+→ List running containers.
+
+docker ps -a
+→ List all containers.
+
+-a = all
+
+docker logs container1
+→ Show logs.
+
+docker logs -f container1
+→ Follow logs continuously.
+
+-f = follow
+
+docker inspect container1
+→ Detailed metadata.
+
+docker top container1
+→ Show running processes.
+
+docker stats
+→ Show CPU/Memory usage.
+
+docker diff container1
+→ Show file changes.
+
+docker port container1
+→ Show port mappings.
+
+docker events
+→ Real-time Docker activity.
+
+docker attach container1
+→ Attach terminal to main process.
+
+docker exec container1 ls
+→ Run command inside container.
+
+docker exec -it container1 bash
+→ Open shell inside container.
+
+docker cp file.txt container1:/tmp
+→ Copy file into container.
+
+docker cp container1:/tmp/file.txt .
+→ Copy file from container.
+
+docker export container1 > app.tar
+→ Export container filesystem.
+
+**Volume Commands
+docker volume create myvol
+→ Create volume.
+
+docker volume ls
+→ List volumes.
+
+docker volume inspect myvol
+→ Volume details.
+
+docker volume rm myvol
+→ Delete volume.
+
+docker volume prune
+→ Delete unused volumes.
+
+*** Network Commands
+docker network ls
+→ List networks.
+
+docker network create mynet
+→ Create network.
+
+docker network inspect mynet
+→ Network details.
+
+docker network connect mynet app1
+→ Connect container.
+
+docker network disconnect mynet app1
+→ Disconnect container.
+
+docker network rm mynet
+→ Delete network.
+
+docker network prune
+→ Delete unused networks.
+
+**Registry Commands
+docker login
+→ Login to registry.
+
+docker logout
+→ Logout from registry.
+
+docker search nginx
+→ Search images.
+
+docker pull nginx
+→ Download image.
+
+docker push myrepo/nginx:v1
+→ Upload image.
+
+***System Cleanup Commands
+docker version
+→ Docker version.
+
+docker info
+→ Docker environment details.
+
+docker system df
+→ Docker disk usage.
+
+docker system prune
+→ Remove unused resources.
+
+docker system prune -a
+→ Remove all unused images and resources.
+
+docker builder prune
+→ Remove build cache.
+
+docker container prune
+→ Remove stopped containers.
+
+docker image prune
+→ Remove dangling images.
+
+docker volume prune
+→ Remove unused volumes.
+
+docker network prune
+→ Remove unused networks.
+
+**Docker Compose Commands
+=========================
+DOCKER COMPOSE COMMANDS
+
+=========================
+=
+docker compose up
+
+→ Create and start services.
+
+docker compose up -d
+
+→ Start services in background.
+
+docker compose down
+
+→ Stop and remove services.
+
+docker compose start
+→ Start existing services.
+
+docker compose stop
+
+→ Stop services.
+
+docker compose restart
+
+→ Restart services.
+
+docker compose ps
+
+→ List service containers.
+
+docker compose logs
+
+→ View service logs.
+
+docker compose logs -f
+
+→ Stream logs.
+
+docker compose exec web bash
+→ Open shell in service container.
+
+docker compose build
+
+→ Build service images.
+
+docker compose pull
+
+→ Download service images.
+
+docker compose config
+
+→ Validate compose file.
+
+
+
+
+*********************************Arch end********
+********************************************************
+
+********************docker images ************************************
+But senior engineers think in terms of:
+
+Image design
+Layer optimization
+Security
+Build performance
+Multi-stage builds
+Supply chain security
+Runtime hardening
+Production best practices
+
+
+
+
+************************ end of docker images *************************
+
+***************** before docker container create it will do like below
+But before starting it:
+
+Create PID namespace
+Create Network namespace
+Create Mount namespace
+Apply cgroups
+
+
+***Create Namespace
+PID Namespace
+Network Namespace
+Mount Namespace
+UTS Namespace
+
+
+***Create cgroups
+docker run --memory=2g
+
+dependson above docker request linux kernal will create the 2GB so container cannot exceed it
+
+***Build Filesystem View
+
+Docker combines all image layers.
+
+Container sees:
+/
+├── bin
+├── usr
+├── lib
+└── app.py
+
+**Start Process
+
+******Very important Where Images Are Stored
+/var/lib/docker
+You will see:-
+images
+containers
+volumes
+networks
+overlay2
+
+
+
+****Complete flow
+
+Docker CLI
+    |
+Docker Daemon (dockerd)
+    |
+containerd
+    |
+runc
+    |
+Linux Kernel
+
+
+dockerd
+
+Manages:
+
+Images
+Containers
+Networks
+Volumes
+
+
+containerd
+
+Container lifecycle management.
+
+Starts and stops containers.
+
+runc
+
+Lowest-level runtime.
+
+Performs:
+Create Namespace
+Apply Cgroups
+Mount Filesystem
+Start Process
+``
+
+==================Complete flow when you run the container======
+docker run python:3.12 python app.py
+
+1. CLI sends request to dockerd
+
+2. dockerd checks image
+
+3. Download image if needed
+
+4. Create writable layer
+
+5. Create PID namespace
+
+6. Create network namespace
+
+7. Create mount namespace
+
+8. Apply cgroups
+
+9. Build merged filesystem
+
+10. containerd invokes runc
+
+11. runc asks kernel to start process
+
+12. Kernel creates process
+
+Host PID = 4500
+
+Container PID = 1
+
+A Docker container is not a VM. At the kernel level, it is just a normal Linux process. Docker uses namespaces to make that process appear isolated, cgroups to control resources, OverlayFS to build the container filesystem from image layers, and containerd/runc to communicate with the Linux kernel and start the process.
+
+
+=============Containers lifecycle========================
+Dockerfile
+    ↓
+A Dockerfile is a blueprint for the application.
+It contains instructions such as the base image,
+dependencies, files to copy, environment variables,
+and the command to start the application.
+
+    ↓
+
+Build
+    ↓
+Docker reads the Dockerfile and executes each
+instruction step by step. Each instruction creates
+an image layer and finally produces a Docker image.
+Example: docker build -t myapp .
+
+    ↓
+
+Image
+    ↓
+A Docker image is a read-only, immutable package
+containing application code, runtime, libraries,
+dependencies, and configuration. It serves as a
+template for creating containers.
+
+    ↓
+
+Create
+    ↓
+Docker creates a container from the image.
+A writable layer is added on top of the image,
+container metadata is generated, networking is
+configured, and resources are allocated.
+The container exists but is not yet running.
+
+    ↓
+
+Start
+    ↓
+Docker starts the container and launches the
+main application process (PID 1). Namespaces,
+cgroups, networking, and storage are attached
+to make the container operational.
+
+    ↓
+
+Running
+    ↓
+The application is actively executing. It can
+accept requests, process data, communicate over
+the network, write logs, and consume CPU and
+memory resources. The container remains alive
+as long as PID 1 is running.
+
+    ↓
+
+Pause / Unpause (Optional)
+    ↓
+Pause temporarily freezes all processes inside
+the container without stopping it. Memory and
+networking remain intact. Unpause resumes
+execution from the exact point where it stopped.
+
+    ↓
+
+Stop
+    ↓
+Docker gracefully stops the container by sending
+SIGTERM to the main process. This allows the
+application to finish ongoing work and release
+resources. If it does not stop within the timeout,
+Docker sends SIGKILL.
+
+    ↓
+
+Exited
+    ↓
+The container is no longer running because the
+main application process has terminated. The
+container still exists along with its logs,
+configuration, and metadata, and can be restarted.
+
+    ↓
+
+Remove
+    ↓
+Docker permanently deletes the container,
+including its writable layer, metadata, and logs.
+The underlying Docker image remains available and
+can be used to create new containers later.
+
+Easy Version
+Dockerfile  → Defines how to build the application
+Build       → Creates Docker image from Dockerfile
+Image       → Read-only application package
+Create      → Container resources prepared
+Start       → Main process launched
+Running     → Application is active
+Pause       → Container temporarily frozen
+Unpause     → Container resumes execution
+Stop        → Graceful shutdown initiated
+Exited      → Process terminated, container exists
+Remove      → Container permanently deleted
+
+***************** end of containers************************8
+Step 1: What Docker Really Is
+
+Many people think Docker is a virtual machine. It is not.
+
+Docker is essentially:
+
+Application Packaging + Process Isolation
+
+
+Docker runs applications as isolated processes on the host OS.
+
+When you start a container:
+
+docker run nginx
+
+
+Docker is simply creating a Linux process and applying isolation mechanisms around it.
+
+Step 2: Traditional Linux Process
+
+Suppose you run:
+
+java app.jar
+
+
+Linux creates a process.
+
+Host OS
+ ├── Process 1 (Systemd)
+ ├── Process 2 (Nginx)
+ ├── Process 3 (Java App)
+ └── Process 4 (Mysql)
+
+
+All processes can potentially see the same OS environment.
+
+No strong isolation.
+
+Step 3: Docker Creates Isolated Processes
+
+When Docker starts a container:
+
+docker run myapp
+
+
+Linux still creates a process.
+
+However Docker tells Linux:
+
+Create a process
++
+Isolate it
++
+Limit resources
++
+Give it its own network
++
+Give it its own filesystem
+
+
+Result:
+
+Host OS
+
+Container A
+ └── Java App
+
+Container B
+ └── Node App
+
+Container C
+ └── Python App
+
+
+Each container thinks:
+
+"I am the only system running"
+
+
+even though they share the same kernel.
+
+Step 4: Linux Namespaces (Core Isolation Technology)
+
+Namespaces provide isolation.
+
+Think of namespaces as giving every container its own "view" of the system.
+
+Without namespaces:
+
+All applications
+  ↓
+See same processes
+See same hostname
+See same network
+
+
+With namespaces:
+
+Container A
+  └─ Own View
+
+Container B
+  └─ Own View
+
+PID Namespace
+
+PID = Process ID.
+
+Normal Linux:
+
+ps -ef
+
+
+May show:
+
+PID 1  systemd
+PID 2  nginx
+PID 3  mysql
+PID 4  java
+
+
+Inside a container:
+
+ps -ef
+
+
+You might see:
+
+PID 1 java
+
+
+Container believes:
+
+I own PID 1
+
+
+Reality:
+
+Host PID = 3546
+
+
+Linux hides the real PID using namespace isolation.
+
+Network Namespace
+
+Each container gets:
+
+Own IP
+Own routing table
+Own ports
+Own network interfaces
+
+
+Container A:
+
+172.17.0.2
+
+
+Container B:
+
+172.17.0.3
+
+
+Container thinks:
+
+This is my network
+
+
+but Docker bridges them through virtual networking.
+
+Mount Namespace
+
+Provides filesystem isolation.
+
+Container sees:
+
+/
+├── app
+├── logs
+└── config
+
+
+while host sees:
+
+/
+├── home
+├── usr
+├── var
+└── opt
+
+
+Different filesystem views.
+
+Hostname Namespace
+
+Container can have:
+
+hostname
+
+
+Output:
+
+user-service
+
+
+Another container:
+
+product-service
+
+
+Each thinks it has its own machine identity.
+
+User Namespace
+
+Maps container users to host users.
+
+Example:
+
+Container Root User
+        ↓
+Host User 1001
+
+
+Provides additional security.
+
+Step 5: cgroups (Control Groups)
+
+Namespaces isolate.
+
+cgroups control resources.
+
+Without cgroups:
+
+Container A
+Consumes all RAM
+Consumes all CPU
+
+
+Other applications starve.
+
+Linux cgroups prevent that.
+
+Example
+
+Run container:
+
+docker run --memory=2g --cpus=2 myapp
+
+
+Linux creates restrictions:
+
+Memory = 2GB
+CPU = 2 cores
+
+
+Container cannot exceed those limits.
+
+Imagine a Hotel
+
+Namespaces:
+
+Give each guest their own room.
+
+
+cgroups:
+
+Limit how much electricity and water they can use.
+
+
+Together:
+
+Isolation + Resource Control
+
+
+which is exactly what containers need.
+
+Step 6: Docker Images
+
+An image is a read-only template.
+
+Example:
+
+FROM ubuntu
+RUN apt install java
+COPY app.jar
+
+
+Docker builds:
+
+Layer 1 -> Ubuntu
+Layer 2 -> Java
+Layer 3 -> App
+
+Why Layers?
+
+Suppose you create 20 Java services.
+
+Without layers:
+
+20 x Ubuntu
+20 x Java
+
+
+Huge storage waste.
+
+Docker shares common layers.
+
+Ubuntu Layer
+    ↑
+Shared
+
+Java Layer
+    ↑
+Shared
+
+Service Layer
+    ↑
+Unique
+
+
+Storage efficient.
+
+Step 7: Union File System
+
+Docker combines layers into a single filesystem.
+
+Example:
+
+Layer 1 Ubuntu
+Layer 2 Java
+Layer 3 Application
+
+
+Container sees:
+
+/
+├── java
+├── libs
+└── app.jar
+
+
+Even though files come from multiple layers.
+
+This is called the Union File System.
+
+Common drivers:
+
+Overlay2
+AUFS
+Btrfs
+
+
+Today Overlay2 is most common.
+
+Step 8: Docker Engine
+
+Main components:
+
+Docker CLI
+      ↓
+Docker Daemon
+      ↓
+Container Runtime
+      ↓
+Linux Kernel
+
+Docker CLI
+
+Commands:
+
+docker build
+docker run
+docker stop
+
+Docker Daemon
+
+Background service.
+
+Receives commands.
+
+Example:
+
+docker run nginx
+
+
+Daemon:
+
+Downloads image
+Creates namespaces
+Applies cgroups
+Creates filesystem
+Starts process
+Container Runtime
+
+Today Docker uses:
+
+containerd
+      ↓
+runc
+
+
+runc directly interacts with Linux kernel APIs.
+
+This is where actual container creation happens.
+
+Step 9: Container Startup Flow
+
+When you run:
+
+docker run nginx
+
+
+Here is what happens internally:
+
+Step 1
+
+Docker CLI sends command.
+
+CLI
+ ↓
+Docker Daemon
+
+Step 2
+
+Check image.
+
+nginx image exists?
+
+
+If not:
+
+Pull from Docker Registry
+
+Step 3
+
+Build filesystem.
+
+Ubuntu Layer
+   +
+Nginx Layer
+
+Step 4
+
+Create namespaces.
+
+PID Namespace
+Network Namespace
+Mount Namespace
+UTS Namespace
+User Namespace
+
+Step 5
+
+Apply cgroups.
+
+CPU Limits
+Memory Limits
+Disk I/O Limits
+
+Step 6
+
+Create virtual network.
+
+veth pair
+   +
+docker0 bridge
+
+
+Assign:
+
+172.17.0.x
+
+Step 7
+
+Start process.
+
+PID 1 = nginx
+
+
+Container is running.
+
+Step 10: Why Docker Is Perfect for Microservices
+
+Suppose your application has:
+
+User Service
+Product Service
+Order Service
+Payment Service
+Notification Service
+
+
+Each service may require:
+
+Java 17
+NodeJS 20
+Python 3.12
+.NET 8
+
+
+Without Docker:
+
+Version conflicts
+Complex setup
+Difficult deployments
+
+
+With Docker:
+
+User Container      -> Java 17
+Product Container   -> NodeJS 20
+Payment Container   -> .NET 8
+Notification        -> Python 3.12
+
+
+All services run independently.
+
+Complete Interview Answer
+
+Docker is a containerization platform that runs applications as isolated Linux processes rather than virtual machines. Unlike VMs, containers share the host OS kernel and therefore do not require a separate guest operating system. Docker relies on Linux namespaces for isolation of processes, networking, filesystems, and hostnames, while cgroups enforce CPU, memory, and I/O limits. Docker images are built using layered filesystems and a Union File System, making them lightweight and efficient. When a container starts, Docker uses containerd and runc to create namespaces, apply cgroups, attach networking, and launch the application process. This makes containers fast, portable, resource-efficient, and highly suited for microservice architectures where each service can run independently in its own container.

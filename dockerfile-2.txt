@@ -1,0 +1,624 @@
+
+docker build
+docker run
+docker push
+
+
+But senior engineers think in terms of:
+
+Image design
+Layer optimization
+Security
+Build performance
+Multi-stage builds
+Supply chain security
+Runtime hardening
+Production best practices
+
+Let's go from Dockerfile basics → Production-grade Dockerfiles → Advanced internals.
+
+1. What is a Docker Image?
+
+Think about a Docker image as a:
+
+Template + Filesystem + Metadata
+
+
+It's NOT a running container.
+
+Example:
+
+docker pull python:3.12
+
+
+Downloads:
+
+Linux filesystem
+Python runtime
+Libraries
+Configuration
+
+
+Stored on disk.
+
+Nothing is running.
+
+Image vs Container
+Image
+
+Like a class in Java.
+
+class User {}
+
+
+Blueprint only.
+
+Container
+
+Like an object.
+
+User user = new User();
+
+
+Running instance.
+
+Docker equivalent:
+
+Image
+  ↓
+Container
+
+
+Example:
+
+docker run python:3.12
+
+
+Docker creates container from image.
+
+2. What is a Dockerfile?
+
+A Dockerfile is just instructions for building an image.
+
+Example:
+
+FROM python:3.12
+
+WORKDIR /app
+
+COPY . .
+
+RUN pip install -r requirements.txt
+
+CMD ["python","app.py"]
+
+
+Build:
+
+docker build -t myapp .
+
+
+Image created.
+
+3. How Docker Builds an Image
+
+Let's take:
+
+FROM python:3.12
+
+WORKDIR /app
+
+COPY requirements.txt .
+
+RUN pip install -r requirements.txt
+
+COPY . .
+
+CMD ["python", "app.py"]
+
+
+Docker executes line by line.
+
+Layer 1
+FROM python:3.12
+
+
+Base image.
+
+Debian
++
+Python Runtime
+
+Layer 2
+WORKDIR /app
+
+
+New layer.
+
+Layer 3
+COPY requirements.txt .
+
+
+New layer.
+
+Layer 4
+RUN pip install
+
+
+New layer.
+
+Layer 5
+COPY . .
+
+
+New layer.
+
+Result:
+
+Layer 1 Python
+Layer 2 Workdir
+Layer 3 Requirements
+Layer 4 Packages
+Layer 5 Application
+
+4. Why Layer Order Matters
+
+Bad Dockerfile:
+
+COPY . .
+
+RUN pip install -r requirements.txt
+
+
+Every code change:
+
+Layer invalidated
+Install packages again
+
+
+Slow build.
+
+Better:
+
+COPY requirements.txt .
+
+RUN pip install -r requirements.txt
+
+COPY . .
+
+
+Now:
+
+Code changes
+↓
+Only last layer rebuilds
+
+
+Huge performance improvement.
+
+5. Docker Cache
+
+Docker reuses unchanged layers.
+
+Example:
+
+FROM python:3.12
+COPY requirements.txt .
+RUN pip install -r requirements.txt
+
+
+If requirements.txt unchanged:
+
+Reuse cache
+
+
+No package reinstall.
+
+Build becomes much faster.
+
+6. Production Problem
+
+Suppose your image contains:
+
+FROM python:3.12
+
+COPY .
+
+RUN pip install
+
+RUN pytest
+
+RUN gcc build-tools
+
+CMD python app.py
+
+
+Final image:
+
+Python
+Build tools
+Tests
+Source code
+Compiler
+
+
+Huge image.
+
+Security risk.
+
+7. Multi-Stage Build
+
+This is the standard modern solution.
+
+Builder Stage
+FROM python:3.12 AS builder
+
+WORKDIR /app
+
+COPY requirements.txt .
+
+RUN pip install \
+    --no-cache-dir \
+    -r requirements.txt
+
+Runtime Stage
+FROM python:3.12-slim
+
+WORKDIR /app
+
+COPY --from=builder \
+     /usr/local/lib/python3.12 \
+     /usr/local/lib/python3.12
+
+COPY . .
+
+CMD ["python","app.py"]
+
+
+Benefits:
+
+Builder image:
+
+Compiler
+Build tools
+Tests
+
+
+Discarded.
+
+Runtime image contains only:
+
+Python
+Application
+
+
+Smaller and safer.
+
+Real Enterprise Example
+
+Java example.
+
+Builder:
+
+FROM maven:3.9-jdk-21 AS build
+
+COPY . .
+
+RUN mvn clean package
+
+
+Runtime:
+
+FROM eclipse-temurin:21-jre
+
+COPY --from=build target/app.jar app.jar
+
+ENTRYPOINT ["java","-jar","app.jar"]
+
+
+Result:
+
+Without multi-stage = 1.5 GB
+
+With multi-stage = 250 MB
+
+
+Very common interview question.
+
+8. Why Alpine Is Not Always Best
+
+Many beginners use:
+
+FROM alpine
+
+
+because image size is tiny.
+
+Years ago this was recommended.
+
+Today many production teams prefer:
+
+FROM python:3.12-slim
+
+
+or
+
+FROM debian-slim
+
+
+Reasons:
+
+Better compatibility
+Easier patching
+Fewer debugging issues
+Better package support
+9. Security Best Practices
+NEVER Run As Root
+
+Bad:
+
+FROM python:3.12
+
+CMD ["python","app.py"]
+
+
+Runs as root.
+
+Good:
+
+RUN useradd appuser
+
+USER appuser
+
+CMD ["python","app.py"]
+
+
+If container compromised:
+
+Attacker ≠ Root
+
+
+Much safer.
+
+10. Use Specific Tags
+
+Bad:
+
+FROM python:latest
+
+
+Tomorrow:
+
+latest changes
+Build breaks
+
+
+Good:
+
+FROM python:3.12.10-slim
+
+
+Predictable builds.
+
+11. Use .dockerignore
+
+Without:
+
+.git
+tests
+venv
+logs
+
+
+all copied.
+
+Example:
+
+.git
+.gitignore
+venv/
+tests/
+logs/
+*.log
+
+
+Build context becomes smaller.
+
+Much faster.
+
+12. Avoid Secrets
+
+Never do:
+
+ENV PASSWORD=Admin123
+
+
+or
+
+COPY secret.json
+
+
+These become part of image history.
+
+Use:
+
+Docker secrets
+Azure Key Vault
+Kubernetes Secrets
+
+
+instead.
+
+13. Reduce Attack Surface
+
+Bad:
+
+FROM ubuntu
+
+
+Contains lots of software.
+
+Better:
+
+FROM python:3.12-slim
+
+
+Less software:
+
+Fewer packages
+Fewer vulnerabilities
+Smaller image
+
+14. Health Checks
+
+Production containers should expose health status.
+
+HEALTHCHECK CMD curl -f http://localhost:5000/health || exit 1
+
+
+Container orchestrators can detect failures.
+
+15. ENTRYPOINT vs CMD
+
+Most interviewees confuse this.
+
+CMD
+
+Default command.
+
+CMD ["python","app.py"]
+
+
+Can easily override.
+
+ENTRYPOINT
+
+Main executable.
+
+ENTRYPOINT ["python"]
+
+
+Run:
+
+docker run image app.py
+
+
+Actually executes:
+
+python app.py
+
+
+Usually production uses:
+
+ENTRYPOINT ["python","app.py"]
+
+
+or
+
+ENTRYPOINT ["java","-jar","app.jar"]
+
+Extremely Good Python Dockerfile
+FROM python:3.12-slim
+
+WORKDIR /app
+
+COPY requirements.txt .
+
+RUN pip install \
+    --no-cache-dir \
+    -r requirements.txt
+
+COPY . .
+
+RUN useradd -m appuser
+
+USER appuser
+
+EXPOSE 5000
+
+HEALTHCHECK CMD curl -f http://localhost:5000/health || exit 1
+
+ENTRYPOINT ["python","app.py"]
+
+Senior-Level Production Dockerfile
+FROM python:3.12-slim AS builder
+
+WORKDIR /app
+
+COPY requirements.txt .
+
+RUN pip install \
+    --prefix=/install \
+    --no-cache-dir \
+    -r requirements.txt
+
+FROM python:3.12-slim
+
+WORKDIR /app
+
+COPY --from=builder /install /usr/local
+
+COPY . .
+
+RUN useradd -r appuser
+
+USER appuser
+
+EXPOSE 5000
+
+ENTRYPOINT ["python","app.py"]
+
+
+Features:
+
+✅ Multi-stage build
+
+✅ Non-root user
+
+✅ Cached dependency layer
+
+✅ Smaller image
+
+✅ Reduced attack surface
+
+✅ Production ready
+
+Dockerfile Interview Checklist
+
+Be comfortable explaining:
+
+Fundamentals
+Image vs Container
+Dockerfile
+Docker Build
+Docker Registry
+Docker Hub
+Intermediate
+Layers
+Cache
+Overlay2
+Volumes
+Networks
+ENTRYPOINT vs CMD
+Advanced
+Namespaces
+cgroups
+containerd
+runc
+Multi-stage builds
+Distroless images
+Security scanning
+Rootless containers
+Image signing
+Supply chain security
+Expert
+OCI Image Specification
+BuildKit
+OverlayFS internals
+Container runtime architecture
+Kubernetes image lifecycle
+Syscalls and seccomp
+AppArmor/SELinux
+Distroless production images
+
+If you master everything from namespaces/cgroups (which we discussed earlier) and combine it with Dockerfile, image layers, multi-stage builds, and container security, you'll already be operating at the level expected of a Senior DevOps Engineer, Platform Engineer, or Kubernetes Administrator.
